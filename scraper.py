@@ -98,15 +98,21 @@ soup = BeautifulSoup(html, 'lxml')
 
 blocks = soup.find('a', attrs={'name': 'spendover20k'}).find_all_next('a')
 for block in blocks:
-    if 'MKCHS Transparency Documents' in block.text.strip():
-            break
-    if '.csv' in block['href'] or '.pdf' in block['href']:
-        link = 'https://www.bedfordhospital.nhs.uk'+block['href']
-        title = block.text.strip().encode('utf-8').split('–')
-        csvMth = title[1].strip()[:3]
-        csvYr = title[0][:4]
-        csvMth = convert_mth_strings(csvMth.upper())
-        data.append([csvYr, csvMth, link])
+    try:
+        if '.csv' in block['href'] or '.pdf' in block['href']:
+            if 'http' not in block['href']:
+                link = 'https://www.bedfordhospital.nhs.uk'+block['href']
+            else:
+                link = block['href']
+            title = block.text.strip().encode('utf-8').split('–')
+            if len(title)==1:
+                title = block.text.strip().encode('utf-8').split('-')
+            csvMth = title[1].strip()[:3]
+            csvYr = title[0][:4]
+            csvMth = convert_mth_strings(csvMth.upper())
+            data.append([csvYr, csvMth, link])
+    except:
+        break
 
 
 #### STORE DATA 1.0
